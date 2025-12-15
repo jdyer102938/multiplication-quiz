@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Multiplication Quiz</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    text-align: center;
+    padding: 30px;
+}
+.card {
+    background: white;
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+input {
+    font-size: 18px;
+    padding: 8px;
+    width: 100px;
+    text-align: center;
+}
+button {
+    font-size: 16px;
+    padding: 10px 20px;
+    margin-top: 10px;
+}
+.correct { color: green; }
+.wrong { color: red; }
+</style>
+</head>
+
+<body>
+<div class="card">
+    <h2>🧮 Multiplication Quiz</h2>
+    <p id="level">Level 1</p>
+    <p id="question"></p>
+
+    <input type="number" id="answer">
+    <br>
+    <button onclick="checkAnswer()">Submit</button>
+
+    <p id="feedback"></p>
+    <p>⭐ Points: <span id="points">0</span></p>
+
+    <p>🏅 Badges</p>
+    <ul id="badges"></ul>
+</div>
+
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+}
+
+let levels = [
+    { start: 1, end: 3, badge: "Level 1 Master 🥉" },
+    { start: 4, end: 6, badge: "Level 2 Master 🥈" },
+    { start: 7, end: 9, badge: "Level 3 Master 🥇" }
+];
+
+let levelIndex = 0, i = 1, j = 1, points = 0;
+
+function updateQuestion() {
+    document.getElementById("level").textContent = "Level " + (levelIndex + 1);
+    document.getElementById("question").textContent = `What is ${i} × ${j}?`;
+    document.getElementById("answer").value = "";
+    document.getElementById("feedback").textContent = "";
+}
+
+function checkAnswer() {
+    let a = Number(document.getElementById("answer").value);
+    let f = document.getElementById("feedback");
+
+    if (a === i * j) {
+        points += 10;
+        document.getElementById("points").textContent = points;
+        f.textContent = "Correct! ✅";
+        f.className = "correct";
+
+        j++;
+        if (j > 9) { j = 1; i++; }
+
+        if (i > levels[levelIndex].end) {
+            earnBadge();
+        } else updateQuestion();
+    } else {
+        f.textContent = "Wrong ❌ Try again";
+        f.className = "wrong";
+    }
+}
+
+function earnBadge() {
+    let li = document.createElement("li");
+    li.textContent = levels[levelIndex].badge;
+    document.getElementById("badges").appendChild(li);
+
+    levelIndex++;
+    if (levelIndex >= levels.length) {
+        document.getElementById("question").textContent = "🎉 You finished all levels!";
+        return;
+    }
+    i = levels[levelIndex].start;
+    j = 1;
+    updateQuestion();
+}
+
+updateQuestion();
+</script>
+</body>
+</html>
